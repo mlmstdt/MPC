@@ -5,11 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Three.js Cube</title>
     <style>
-        body { margin: 0; }
-        canvas { display: block; }
+        #legend {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            z-index: 100;
+        }
+
+        #legend span {
+            opacity: 0.8; /* Adjust text opacity */
+            filter: brightness(80%); /* Adjust text brightness */
+        }
+
+        #legend .color-box {
+            opacity: 0.8; /* Adjust box opacity */
+            filter: brightness(80%); /* Adjust box brightness */
+            width: 15px;
+            height: 15px;
+            margin-right: 5px;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
+    <div id="legend"></div>
+    <div id="info-window"></div>
     <script type="module" src="main.js"></script>
 </body>
 </html>
