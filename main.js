@@ -1,5 +1,5 @@
 import * as THREE from 'https://unpkg.com/three@0.134.0/build/three.module.js';
-import { OrbitControls } from 'path-to-three/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from 'https://cdn.skypack.dev/three/examples/jsm/controls/OrbitControls';
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
