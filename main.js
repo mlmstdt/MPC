@@ -279,7 +279,7 @@ async function fetchDataAndRender() {
     }
   };
 
-    
+    document.getElementById('loading-screen').style.display = 'none';
     animate();
 
   } catch (error) {
