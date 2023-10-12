@@ -118,7 +118,7 @@
     changeText();
 
     // Set up the interval to change the text every 10 seconds
-    const textChangeInterval = setInterval(changeText, 10000); 
+    const textChangeInterval = setInterval(changeText, 15000); 
 
     // Add a click event listener to hide the loading screen and clear the interval
     document.addEventListener('click', () => {
@@ -130,7 +130,7 @@
     setTimeout(() => {
         loadingScreen.style.display = 'none';
         clearInterval(textChangeInterval); // Stop changing the text after hiding the screen
-    }, 30000); // Adjust as desired, e.g., 40000 for 40 seconds
+    }, 45000); // Adjust as desired, e.g., 40000 for 40 seconds
 });
     </script>
 </body>
