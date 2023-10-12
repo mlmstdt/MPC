@@ -53,11 +53,15 @@
     align-items: center;
     justify-content: center;
     z-index: 2000;
+    text-align: center;
 }
 
 #loading-screen p {
     margin: 0;
     font-size: 20px;
+    line-height: 2;
+    max-width: 70%;  /* Limits the width of the text */
+    padding: 20px;  /* Provides some space around the text */
 }
 
     </style>
@@ -65,9 +69,11 @@
 <body>
     <div id="legend"></div>
     <div id="loading-screen">
-        <p>“Never does the bright-gleaming sun look down with his rays, either while he’s climbing into the starry heavens” - Odyssey 11.5</p>
+        <p></p>
     </div>
-    <div id="info-window"></div>
+    <div id="info-window">
+        <div id="notes-rendering"></div>
+    </div>
     <!-- Import maps polyfill -->
     <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
 
@@ -81,8 +87,51 @@
     }
     </script>
     <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
+    <script>
+        console.log(Vex.Flow); // Log VF to see if it is defined
+      </script>
 
     <!-- External script -->
     <script type="module-shim" src="main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+    const loadingScreen = document.getElementById('loading-screen');
+    const loadingText = loadingScreen.querySelector('p');
+    
+    // Array of texts to display
+    const texts = [
+        "In 1934, classicist Milman Parry, accompanied by his disciple Albert Lord, embarked on a journey through Serbia in pursuit of understanding the true nature of Homeric verse. At the core of their expedition lay a profound investigation into the very essence of epic poetry. Over the subsequent year, their meticulous endeavors culminated in an astonishing compilation of over 3,000 double-sided aluminum discs of Serbo-Croatian and Bosnian singing.",
+        "These songs, varying extensively in length and often spanning several hours, became the subject of Parry’s scholarly hypothesis. He posited that these compositions were cohesively bound by what he termed 'formulas'. Parry, in his dissertation, had previously argued that the semantic content of Homeric epic poetry was characterized by instructive repetitions. \n \n The question was thus if the melody of the song had the same formulaic structure. Since there was no Homer around to sing for him, Parry turned his ears and mechanical device to what he perceived to be the closest relative - the Guslar epic song.",
+        "This project employs machine learning to detect melodic formulas within 13 sample songs from the collection. The results define a set of repeated melodic topics. However, these topics are revealed to not only be contained in each respective song. Instead, melodic formula are traded between songs, singers, and performances. \n \n Parry’s insights about the semantic formulas occurred to him as he was studying Homers deceptions of the starry skies. Thus, let us return to the heavens to investigate what patterns may emerge in epic song. Click to begin exploring the latent space of melodic formula. "
+    ];
+    
+    let currentTextIndex = 0;
+    
+    // Function to change the text every 10 seconds
+    const changeText = () => {
+        loadingText.innerText = texts[currentTextIndex];
+        currentTextIndex = (currentTextIndex + 1) % texts.length;
+    };
+    
+    // Initially set the first text
+    changeText();
+
+    // Set up the interval to change the text every 10 seconds
+    const textChangeInterval = setInterval(changeText, 10000); 
+
+    // Add a click event listener to hide the loading screen and clear the interval
+    document.addEventListener('click', () => {
+        loadingScreen.style.display = 'none';
+        clearInterval(textChangeInterval); // Stop changing the text after hiding the screen
+    }, { once: true });
+
+    // Optional: hide the loading screen after a certain amount of time
+    setTimeout(() => {
+        loadingScreen.style.display = 'none';
+        clearInterval(textChangeInterval); // Stop changing the text after hiding the screen
+    }, 30000); // Adjust as desired, e.g., 40000 for 40 seconds
+});
+    </script>
 </body>
 </html>
