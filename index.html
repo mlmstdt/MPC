@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>3D Scatter Plot</title>
+    <title>MPC</title>
     <style>
         #legend {
             position: absolute;
@@ -63,11 +63,19 @@
     max-width: 70%;  /* Limits the width of the text */
     padding: 20px;  /* Provides some space around the text */
 }
-
+#time-progress {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 10px;
+}        
     </style>
 </head>
 <body>
     <div id="legend"></div>
+    <progress id="time-progress" max="100" value="0"></progress>
     <div id="loading-screen">
         <p></p>
     </div>
