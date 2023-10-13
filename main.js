@@ -277,9 +277,14 @@ async function fetchDataAndRender() {
     if (currentTime >= maxTime) {
       currentTime = 0; // reset to start
     }
-  };
+    
+    // Update the progress bar
+    const progressBar = document.getElementById('time-progress');
+    progressBar.max = maxTime;
+    progressBar.value = currentTime;
+};
 
-    animate();
+animate();
 
   } catch (error) {
     console.error('An error occurred while fetching the data:', error);
