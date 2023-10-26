@@ -71,7 +71,7 @@ function showInfo(object) {
           Loading audio...
       </div>
       <div id="instruction">
-          Press space bar to pause
+          Press space bar to pause. Select another cluster to have both played simultaneously. Compare the similarity by ear, or create noise.
       </div>
   `;
 
@@ -403,7 +403,7 @@ legendItems.forEach(legendItem => {
     
     renderer.render(scene, camera);
   
-    currentTime += 0.1; // or whatever increment you've decided on
+    currentTime += 0.05; // or whatever increment you've decided on
     
     if (currentTime >= maxTime) {
       currentTime = 0; // reset to start
