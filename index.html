@@ -11,22 +11,34 @@
             top: 10px;
             left: 10px;
             color: white;
-            z-index: 100;
+            z-index: 2000;
         }
-
-        #legend span {
-            opacity: 0.8; /* Adjust text opacity */
-            filter: brightness(80%); /* Adjust text brightness */
+        #legend .legend-item.toggled-on .color-box {
+            box-shadow: 0 0 5px 2px rgba(255, 255, 255, 0.8); /* White glow around the color square */
         }
-
+        #tooltip {
+    position: absolute;
+    top: 320px;
+    left: 20px;
+    background-color: rgba(0, 0, 0, 0.7); /* Optional: for visibility */
+    color: white; /* Optional: for visibility */
+    padding: 10px;
+    border-radius: 5px;
+    display: none; /* Initially hidden */
+    z-index: 2000;
+}
         #legend .color-box {
             opacity: 0.8; /* Adjust box opacity */
-            filter: brightness(80%); /* Adjust box brightness */
             width: 15px;
             height: 15px;
             margin-right: 5px;
             display: inline-block;
         }
+        #legend span {
+            opacity: 0.8; /* Adjust text opacity */
+            filter: brightness(80%); /* Adjust text brightness */
+        }
+
         #info-window {
             position: absolute;
             top: 20px;
@@ -75,12 +87,28 @@
 </head>
 <body>
     <div id="legend"></div>
+    <div id="tooltip">
+        <p>Click any song to see how the specific recording uses formulas over time, <br> or activate several songs to compare the distribution.</p>
+    </div>
+    <div id="global-time-text" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); text-align: center; color: white;">
+        Time
+    </div>
+
     <progress id="time-progress" max="100" value="0"></progress>
     <div id="loading-screen">
         <p></p>
     </div>
     <div id="info-window">
-        <div id="notes-rendering"></div>
+        <div id="cluster-info">
+            Cluster: <span id="cluster-number">Loading...</span>
+        </div>
+        <div id="audio-status">
+            Loading audio...
+        </div>
+        <div id="instruction">
+            Press space bar to pause. Select another cluster to have both played simultanously. Compare the similarity by ear, or create noise.
+        </div>
+    </div>
     </div>
     <!-- Import maps polyfill -->
     <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
@@ -96,12 +124,20 @@
     </script>
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tonejs/midi"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tone@14"></script>
+    <audio id="audio-player" controls style="display:none;">
+        <source id="audio-source" src="" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+
     <script>
         console.log(Vex.Flow); // Log VF to see if it is defined
       </script>
 
     <!-- External script -->
     <script type="module-shim" src="main.js"></script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
     const loadingScreen = document.getElementById('loading-screen');
@@ -109,9 +145,10 @@
     
     // Array of texts to display
     const texts = [
-        "In 1934, classicist Milman Parry, accompanied by his disciple Albert Lord, embarked on a journey through Serbia in pursuit of understanding the true nature of Homeric verse. At the core of their expedition lay a profound investigation into the very essence of epic poetry. Over the subsequent year, their meticulous endeavors culminated in an astonishing compilation of over 3,000 double-sided aluminum discs of Serbo-Croatian and Bosnian singing.",
-        "These songs, varying extensively in length and often spanning several hours, became the subject of Parry’s scholarly hypothesis. He posited that these compositions were cohesively bound by what he termed 'formulas'. Parry, in his dissertation, had previously argued that the semantic content of Homeric epic poetry was characterized by instructive repetitions. \n \n The question was thus if the melody of the song had the same formulaic structure. Since there was no Homer around to sing for him, Parry turned his ears and mechanical device to what he perceived to be the closest relative - the Guslar epic song.",
-        "This project employs machine learning to detect melodic formulas within 13 sample songs from the collection. The results define a set of repeated melodic topics. However, these topics are revealed to not only be contained in each respective song. Instead, melodic formula are traded between songs, singers, and performances. \n \n Parry’s insights about the semantic formulas occurred to him as he was studying Homers deceptions of the starry skies. Thus, let us return to the heavens to investigate what patterns may emerge in epic song. Click to begin exploring the latent space of melodic formula. "
+        "In 1934, classicist Milman Parry, accompanied by his disciple Albert Lord, embarked on a journey through former Yugoslavia in pursuit of understanding the true nature of Homeric verse. The expedition was the culmination of a profound investigation into the very essence of epic poetry. Over the subsequent year, their meticulous endeavors resulted in an astonishing compilation of over 3,000 double-sided aluminum discs of Serbo-Croatian and Bosnian singing.",
+        "These songs, varying extensively in length and often spanning several hours, became the subject of Parry’s last scholarly hypothesis. He posited that these compositions were cohesively bound by what he termed 'formulas'. Parry, in his dissertation, had previously argued that the semantic content of Homeric epic poetry was characterized by instructive repetitions. \n \n The question was thus if the melody of the song had the same formulaic nature. Since there was no Homer around to sing for him, Parry turned his ears and mechanical device to what he perceived to be the closest relative - the South Slavic heroic song.",
+        "This website is the result of a project which returns the archive to further explore the similarities of song. Machine learning has been employed to detect melodic formulas within 15 sample songs from the collection. The results define a set of repeated melodic topics. However, these topics are revealed to not only be contained in each respective song. Instead, melodic formula are traded between songs, singers, and performances. In this way, we are invited to shift between the scale of the formulaic segment to the scale of the genre.", 
+        "Parry’s insights about the semantic formulas occurred to him as he was studying Homers descriptions of the starry skies. Thus, let us return to the heavens to investigate what patterns may emerge in epic song. Each constellation corresponds to one of the hundred most distinct formulaic phrases. The distance beteeen the clusters is determined by the melodic similarity of each respective formula. Interact with the map to explore the latent space of melodic formula. "
     ];
     
     let currentTextIndex = 0;
@@ -126,19 +163,22 @@
     changeText();
 
     // Set up the interval to change the text every 10 seconds
-    const textChangeInterval = setInterval(changeText, 15000); 
+    const textChangeInterval = setInterval(changeText, 10000); 
 
     // Add a click event listener to hide the loading screen and clear the interval
     document.addEventListener('click', () => {
-        loadingScreen.style.display = 'none';
-        clearInterval(textChangeInterval); // Stop changing the text after hiding the screen
-    }, { once: true });
+            const tooltip = document.getElementById('tooltip');
+            tooltip.style.display = 'block'; // Show the tooltip when the document is clicked
+        }, { once: true });
 
     // Optional: hide the loading screen after a certain amount of time
     setTimeout(() => {
         loadingScreen.style.display = 'none';
         clearInterval(textChangeInterval); // Stop changing the text after hiding the screen
-    }, 45000); // Adjust as desired, e.g., 40000 for 40 seconds
+        
+        const tooltip = document.getElementById('tooltip');
+        tooltip.style.display = 'block'; // Show the tooltip
+    }, 40000); // Adjust as desired, e.g., 40000 for 40 seconds
 });
     </script>
 </body>
