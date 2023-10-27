@@ -164,6 +164,7 @@
 
     // Set up the interval to change the text every 10 seconds
     const textChangeInterval = setInterval(changeText, 10000); 
+            
 
     // Add a click event listener to hide the loading screen and clear the interval
     document.addEventListener('click', () => {
@@ -171,15 +172,23 @@
             tooltip.style.display = 'block'; // Show the tooltip when the document is clicked
         }, { once: true });
 
-    // Optional: hide the loading screen after a certain amount of time
-    setTimeout(() => {
-        loadingScreen.style.display = 'none';
-        clearInterval(textChangeInterval); // Stop changing the text after hiding the screen
-        
-        const tooltip = document.getElementById('tooltip');
-        tooltip.style.display = 'block'; // Show the tooltip
-    }, 40000); // Adjust as desired, e.g., 40000 for 40 seconds
-});
-    </script>
+            // Optional: hide the loading screen after a certain amount of time
+        setTimeout(() => {
+            loadingScreen.style.display = 'none';
+            clearInterval(textChangeInterval); // Stop changing the text after hiding the screen
+            
+            const tooltip = document.getElementById('tooltip');
+            tooltip.style.display = 'block'; // Show the tooltip
+        }, 40000); // Adjust as desired, e.g., 40000 for 40 seconds
+    });
+
+    // Hide tooltip when a legend item is clicked
+    document.addEventListener('click', function(event) {
+        if (event.target.closest('.legend-item')) {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.style.display = 'none'; // Hide the tooltip
+        }
+    });
+</script>
 </body>
 </html>
