@@ -80,7 +80,14 @@ function showInfo(object) {
   // Play the audio file
   playAudioFile(audioFileUrl);
 }
+document.addEventListener('click', function(event) {
+    const tooltip = document.getElementById('tooltip');
 
+    // Check if the tooltip exists and if the clicked element is not the tooltip or a child of the tooltip
+    if (tooltip && !tooltip.contains(event.target)) {
+        tooltip.remove(); // Remove the tooltip from the DOM
+    }
+});
 
 function playAudioFile(url) {
   // Create a new audio element for each file, play it, and add it to the list
@@ -302,12 +309,11 @@ const legendItems = document.querySelectorAll('.legend-item');
 
 legendItems.forEach(legendItem => {
     legendItem.addEventListener('click', (e) => {
-        const tooltip = document.getElementById('tooltip'); // Ensure you have an element with this id
-        
-        // Remove the tooltip from the DOM
-        tooltip.remove();
-        
-
+        const tooltip = document.getElementById('tooltip');
+        if (tooltip) { // Check if tooltip element is present
+            tooltip.remove(); // Remove tooltip from the DOM
+        }
+      
         const filename = e.currentTarget.getAttribute('data-filename');
         const colorToToggle = colors[filename];
 
