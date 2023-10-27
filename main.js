@@ -299,16 +299,14 @@ const sphere = new THREE.Mesh(new THREE.SphereGeometry(25), material);
 });
 let toggledColors = new Set();
 const legendItems = document.querySelectorAll('.legend-item');
-let tooltipHiddenOnce = false; // A flag to check if tooltip has been hidden once
 
 legendItems.forEach(legendItem => {
     legendItem.addEventListener('click', (e) => {
         const tooltip = document.getElementById('tooltip'); // Ensure you have an element with this id
-
-        if (!tooltipHiddenOnce) {
-            tooltip.style.display = 'none'; // Hide the tooltip
-            tooltipHiddenOnce = true; // Set the flag as true once tooltip is hidden
-        }
+        
+        // Remove the tooltip from the DOM
+        tooltip.remove();
+        
 
         const filename = e.currentTarget.getAttribute('data-filename');
         const colorToToggle = colors[filename];
