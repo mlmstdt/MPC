@@ -297,9 +297,8 @@ const sphere = new THREE.Mesh(new THREE.SphereGeometry(25), material);
         sphere.visible = currentTime >= start && currentTime <= stop;
     }
 });
-const legendItems = document.querySelectorAll('.legend-item');
 let toggledColors = new Set();
-
+const legendItems = document.querySelectorAll('.legend-item');
 let tooltipHiddenOnce = false; // A flag to check if tooltip has been hidden once
 
 legendItems.forEach(legendItem => {
@@ -307,12 +306,8 @@ legendItems.forEach(legendItem => {
         const tooltip = document.getElementById('tooltip'); // Ensure you have an element with this id
 
         if (!tooltipHiddenOnce) {
-            if (tooltip.style.display === 'none') {
-                tooltip.style.display = 'block'; // Show the tooltip
-            } else {
-                tooltip.style.display = 'none'; // Hide the tooltip
-                tooltipHiddenOnce = true; // Set the flag as true once tooltip is hidden
-            }
+            tooltip.style.display = 'none'; // Hide the tooltip
+            tooltipHiddenOnce = true; // Set the flag as true once tooltip is hidden
         }
 
         const filename = e.currentTarget.getAttribute('data-filename');
