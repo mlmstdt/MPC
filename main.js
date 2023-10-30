@@ -30,6 +30,7 @@ const fragmentShader = `
 `;
 
 
+const geometry = new THREE.TorusGeometry(50, 3, 16, 100); // Adjust the radius and tube size here
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -43,21 +44,39 @@ function findMelodyInfo(clusterNumber) {
 
 // Array to hold all active audio players
 window.audioPlayers = [];
-
+function clearAllRings() {
+    currentRings.forEach(ring => {
+        scene.remove(ring);
+    });
+    currentRings = [];
+}
 document.addEventListener('keydown', function (e) {
     if (e.code === 'Space') { // Check if the pressed key is the space bar
         toggleAllAudioPlayback();
+        clearAllRings(); // Clear all rings when space bar is pressed
     }
 });
+let currentRings = []; // Global array to keep track of all rings
+
 function showInfo(object) {
-  console.log('Object in showInfo: ', object);
-  const infoWindow = document.getElementById('info-window');
-
-  const clusterNumber = object.userData.clusterNumber;
-  console.log(`Cluster number: ${clusterNumber}`);
-
-  // Updating the cluster number display
-  document.getElementById('cluster-number').innerText = clusterNumber;
+    console.log('Object in showInfo: ', object);
+    const infoWindow = document.getElementById('info-window');
+  
+    const clusterNumber = object.userData.clusterNumber;  // Retrieving the cluster number
+    const clusterPosition = object.position;  // Retrieving the position of the cluster
+    
+    console.log(`Cluster number: ${clusterNumber}`);
+    console.log(`Cluster position: x=${clusterPosition.x}, y=${clusterPosition.y}, z=${clusterPosition.z}`);
+    
+    const ring = createRing(object.position);
+    scene.add(ring);
+    console.log("New ring added to the scene.");
+    
+    currentRings.push(ring); // Add the new ring to the array
+    
+    // Updating the cluster number display
+    document.getElementById('cluster-number').innerText = clusterNumber;
+ 
 
   // Assuming the audio files are named like "cluster0.mp3", "cluster1.mp3", etc.
   const audioFileUrl = `https://cdn.jsdelivr.net/gh/mlmstdt/MPC@main/MPC_audio_mp3/cluster${clusterNumber}.mp3`;
@@ -88,7 +107,18 @@ document.addEventListener('click', function(event) {
         tooltip.remove(); // Remove the tooltip from the DOM
     }
 });
+function createRing(position) {
+    console.log(`Creating ring at position: x=${position.x}, y=${position.y}, z=${position.z}`);
+    
+    const geometry = new THREE.TorusGeometry(50, 3, 32, 200); // Increased radial and tubular segments
 
+    const material = new THREE.MeshBasicMaterial({ color: 0xffffff }); // White color for visibility
+    const ring = new THREE.Mesh(geometry, material);
+    
+    ring.position.set(position.x, position.y, position.z);
+    
+    return ring;
+}
 function playAudioFile(url) {
   // Create a new audio element for each file, play it, and add it to the list
   let audioPlayer = document.createElement('audio');
@@ -121,32 +151,36 @@ function onMouseMove(event) {
 window.addEventListener('click', onDocumentMouseClick, false);
 
 function onDocumentMouseClick(event) {
-  if (event.target.closest('.legend-item')) return; // ignore if clicking on a legend item
-
-  event.preventDefault();
-
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-  raycaster.setFromCamera(mouse, camera);
-
-  // intersectObjects receives an array of objects to test for intersection
-  const intersects = raycaster.intersectObjects(scene.children);
-
-  if (intersects.length > 0) {
-      const [intersect] = intersects;
-
-      if(intersect.object.type === "Mesh") {  // Check if the intersected object is a sphere
-          showInfo(intersect.object);
-      }
+    if (event.target.closest('.legend-item')) return; // ignore if clicking on a legend item
+  
+    event.preventDefault();
+  
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  
+    raycaster.setFromCamera(mouse, camera);
+  
+    // intersectObjects receives an array of objects to test for intersection
+    const intersects = raycaster.intersectObjects(scene.children);
+  
+    if (intersects.length > 0) {
+        const [intersect] = intersects;
+  
+        if(intersect.object.type === "Mesh") {  // Check if the intersected object is a sphere
+            showInfo(intersect.object);
+            // Log the cluster that is currently playing
+            console.log(`Cluster ${intersect.object.userData.clusterNumber} is currently playing.`);
+        }
+    }
   }
-}
+  
 
 
 // Setup scene, camera, and renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 30000);
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 const colors = {
@@ -205,6 +239,8 @@ let melodyInfo = [];
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true; 
 controls.dampingFactor = 0.25;
+controls.rotateSpeed = 0.25; // Adjust the value as needed
+controls.zoomSpeed = 0.5; // Adjust the value as needed
 controls.screenSpacePanning = false;
 controls.maxPolarAngle = Math.PI / 2;
 
@@ -319,16 +355,13 @@ legendItems.forEach(legendItem => {
 
         if (toggledColors.has(colorToToggle)) {
             toggledColors.delete(colorToToggle);
-            e.currentTarget.classList.remove('toggled-on'); // Remove the highlighted style
+            e.currentTarget.classList.remove('toggled-on'); 
         } else {
             toggledColors.add(colorToToggle);
-            e.currentTarget.classList.add('toggled-on'); // Add the highlighted style
+            e.currentTarget.classList.add('toggled-on'); 
         }
     });
 });
-
-
-
 
     
     let currentTime = 0;
@@ -356,7 +389,7 @@ legendItems.forEach(legendItem => {
   
       if (positions.length < 2) {
           console.warn(`Cluster ${cluster} has less than 2 points and cannot form a line.`);
-          return;  // Skip this iteration since we can't form a line with <2 points
+          return;  // Skip this iteration since it can't form a line with <2 points
       }
   
       // 1. DRAWING LINES
@@ -369,16 +402,16 @@ legendItems.forEach(legendItem => {
   
       // 2. CREATING INVISIBLE SPHERES AS HITBOXES
       positions.forEach((position, index) => {
-          const sphereGeometry = new THREE.SphereGeometry(30);  // Adjust the size to your needs
+          const sphereGeometry = new THREE.SphereGeometry(30);  
           const sphereMaterial = new THREE.MeshBasicMaterial({
               color: 'gray', 
-              visible: false  // Ensuring the sphere is invisible but still interactive
+              visible: false  
           });
           const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
           sphere.visible = false; 
 
           
-          sphere.position.copy(position);  // Copying position from point to sphere
+          sphere.position.copy(position);  
           sphere.userData.clusterNumber = cluster;  
           sphere.userData.pointIndex = index;  
   
@@ -395,7 +428,7 @@ legendItems.forEach(legendItem => {
       if (toggledColors.has(color)) {
           sphere.visible = currentTime >= start && currentTime <= stop; // Obey time lapse if toggled ON
       } else {
-          sphere.visible = false; // Completely invisible otherwise
+          sphere.visible = false; 
       }
   });
   
@@ -408,7 +441,6 @@ legendItems.forEach(legendItem => {
       currentTime = 0; // reset to start
     }
     
-    // Update the progress bar
     const progressBar = document.getElementById('time-progress');
     progressBar.max = maxTime;
     progressBar.value = currentTime;
@@ -426,4 +458,3 @@ animate();
 fetchDataAndRender();
 
 window.addEventListener('mousemove', onMouseMove, false);
-
