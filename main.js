@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/controls/OrbitControls.js';
 
-// Vertex and Fragment Shaders for the gradient sphere
 const vertexShader = `
     varying vec3 vUv; 
     varying vec3 vPosition; 
@@ -23,14 +22,14 @@ const fragmentShader = `
         // Create a gradient for color intensity
         float colorGradient = smoothstep(1.0, 0.2, len);
         
-        vec3 finalColor = color * colorGradient; // Intensify the color at the center
+        vec3 finalColor = color * colorGradient; 
         
-        gl_FragColor = vec4(finalColor, 1.0); // Set alpha to a constant value
+        gl_FragColor = vec4(finalColor, 1.0); 
     }
 `;
 
 
-const geometry = new THREE.TorusGeometry(50, 3, 16, 100); // Adjust the radius and tube size here
+const geometry = new THREE.TorusGeometry(50, 3, 16, 100); 
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -42,7 +41,7 @@ function findMelodyInfo(clusterNumber) {
   return foundMelody;
 }
 
-// Array to hold all active audio players
+
 window.audioPlayers = [];
 function clearAllRings() {
     currentRings.forEach(ring => {
@@ -56,14 +55,14 @@ document.addEventListener('keydown', function (e) {
         clearAllRings(); // Clear all rings when space bar is pressed
     }
 });
-let currentRings = []; // Global array to keep track of all rings
+let currentRings = []; 
 
 function showInfo(object) {
     console.log('Object in showInfo: ', object);
     const infoWindow = document.getElementById('info-window');
   
-    const clusterNumber = object.userData.clusterNumber;  // Retrieving the cluster number
-    const clusterPosition = object.position;  // Retrieving the position of the cluster
+    const clusterNumber = object.userData.clusterNumber;
+    const clusterPosition = object.position;  
     
     console.log(`Cluster number: ${clusterNumber}`);
     console.log(`Cluster position: x=${clusterPosition.x}, y=${clusterPosition.y}, z=${clusterPosition.z}`);
@@ -72,16 +71,13 @@ function showInfo(object) {
     scene.add(ring);
     console.log("New ring added to the scene.");
     
-    currentRings.push(ring); // Add the new ring to the array
+    currentRings.push(ring); 
     
-    // Updating the cluster number display
     document.getElementById('cluster-number').innerText = clusterNumber;
  
 
-  // Assuming the audio files are named like "cluster0.mp3", "cluster1.mp3", etc.
   const audioFileUrl = `https://cdn.jsdelivr.net/gh/mlmstdt/MPC@main/MPC_audio_mp3/cluster${clusterNumber}.mp3`;
 
-  // Set up the content to be displayed
   infoWindow.innerHTML = `
       <div id="cluster-info">
           Cluster: <span id="cluster-number">${clusterNumber}</span>
@@ -247,7 +243,6 @@ controls.maxPolarAngle = Math.PI / 2;
 // Position camera
 //camera.position.z = 10;
 camera.position.set(4000, 1300, 7100);
-// Load CSV data using Fetch API
 
 async function fetchDataAndRender() {
   try {
@@ -265,13 +260,13 @@ async function fetchDataAndRender() {
       colorBox.style.backgroundColor = color;
   
       const filenameSpan = document.createElement('span');
-      filenameSpan.innerText = fullNames[filename] || filename; // Use full name if available, otherwise use filename
+      filenameSpan.innerText = fullNames[filename] || filename; 
   
       legendItem.appendChild(colorBox);
       legendItem.appendChild(filenameSpan);
       legendContainer.appendChild(legendItem);
   
-      // Add click event listener for the legendItem here:
+      
       legendItem.addEventListener('click', function() {
           const filename = this.getAttribute('data-filename');
   
@@ -294,7 +289,6 @@ async function fetchDataAndRender() {
     maxTime = Math.max(...parsedData.map(datum => parseFloat(datum.stop)));
     console.log("Parsed Data: ", parsedData);
 
-    // Set up the camera
     camera.position.set(4000, 1300, 7100);  
 
     let spheres = [];
@@ -309,7 +303,6 @@ async function fetchDataAndRender() {
       const stop = parseFloat(datum.stop);
       
       const color = colors[filename] || 'gray';
-        // Here, we replace the existing material with our new shader material
         const material = new THREE.ShaderMaterial({
           uniforms: {
               color: { value: new THREE.Color(color) }
