@@ -50,9 +50,9 @@ function clearAllRings() {
     currentRings = [];
 }
 document.addEventListener('keydown', function (e) {
-    if (e.code === 'Space') { // Check if the pressed key is the space bar
+    if (e.code === 'Space') { 
         toggleAllAudioPlayback();
-        clearAllRings(); // Clear all rings when space bar is pressed
+        clearAllRings(); 
     }
 });
 let currentRings = []; 
@@ -98,17 +98,16 @@ function showInfo(object) {
 document.addEventListener('click', function(event) {
     const tooltip = document.getElementById('tooltip');
 
-    // Check if the tooltip exists and if the clicked element is not the tooltip or a child of the tooltip
     if (tooltip && !tooltip.contains(event.target)) {
-        tooltip.remove(); // Remove the tooltip from the DOM
+        tooltip.remove(); 
     }
 });
 function createRing(position) {
     console.log(`Creating ring at position: x=${position.x}, y=${position.y}, z=${position.z}`);
     
-    const geometry = new THREE.TorusGeometry(50, 3, 32, 200); // Increased radial and tubular segments
+    const geometry = new THREE.TorusGeometry(50, 3, 32, 200); 
 
-    const material = new THREE.MeshBasicMaterial({ color: 0xffffff }); // White color for visibility
+    const material = new THREE.MeshBasicMaterial({ color: 0xffffff }); 
     const ring = new THREE.Mesh(geometry, material);
     
     ring.position.set(position.x, position.y, position.z);
@@ -116,7 +115,7 @@ function createRing(position) {
     return ring;
 }
 function playAudioFile(url) {
-  // Create a new audio element for each file, play it, and add it to the list
+  
   let audioPlayer = document.createElement('audio');
   audioPlayer.src = url;
   audioPlayer.loop = true;
@@ -127,7 +126,6 @@ function playAudioFile(url) {
 }
 
 function toggleAllAudioPlayback() {
-  // Check if at least one audio player is currently playing
   const isAnyAudioPlaying = window.audioPlayers.some((audioPlayer) => !audioPlayer.paused);
 
   window.audioPlayers.forEach((audioPlayer) => {
@@ -156,13 +154,12 @@ function onDocumentMouseClick(event) {
   
     raycaster.setFromCamera(mouse, camera);
   
-    // intersectObjects receives an array of objects to test for intersection
     const intersects = raycaster.intersectObjects(scene.children);
   
     if (intersects.length > 0) {
         const [intersect] = intersects;
   
-        if(intersect.object.type === "Mesh") {  // Check if the intersected object is a sphere
+        if(intersect.object.type === "Mesh") {  
             showInfo(intersect.object);
             // Log the cluster that is currently playing
             console.log(`Cluster ${intersect.object.userData.clusterNumber} is currently playing.`);
@@ -408,7 +405,7 @@ legendItems.forEach(legendItem => {
           sphere.userData.clusterNumber = cluster;  
           sphere.userData.pointIndex = index;  
   
-          scene.add(sphere);  // Add sphere to scene so it becomes interactive
+          scene.add(sphere);  
       });
   
       console.log(`Line for cluster ${cluster} added to scene:`, scene.children.includes(line));
